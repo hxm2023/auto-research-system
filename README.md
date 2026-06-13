@@ -94,6 +94,9 @@ bash ../aris_repo/tools/install_aris.sh
 |-------|-----------|
 | Per-round audit | `round_sentinel.sh` - 6 mandatory files, exit 1 blocks DECIDE |
 | Phase transition | `phase_sentinel.sh` - 58+ binary checks, exit 1 blocks progression |
+| Factual audit | `factual_audit.sh` - 7 automated checks (metrics, seeds, checkpoints, reproducibility) before Codex MCP review |
+| Hard bottom lines | 4 non-negotiable rules: Technical Soundness<4, metric off >10x, statistical fraud, reproducibility failure |
+| Sub-phase rollback | 12 granular rollback targets (Phase 2.1-2.6, 3.1-3.3) with fix_target tags |
 | Skill-level | NEVER STOP mandate, ANTI-CHEAT check, experiment-reviewer gate |
 | Hooks | PostToolUse + PreToolUse auto-triggers on Write/Skill |
 

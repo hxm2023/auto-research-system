@@ -39,6 +39,29 @@ The knowledge base is built by Phase 0 of the pipeline. Just load it:
 If the KB is missing (pipeline Phase 0 was skipped), stop and run:
 `/knowledge-builder "<research topic>"` before continuing.
 
+### Step 1.5: Factual Audit (AUTOMATIC — before Codex MCP)
+
+Run a factual audit BEFORE sending anything to Codex MCP. This catches provable errors
+that don't need model judgment:
+
+```bash
+# Resolve audit script
+AUDIT=".aris/tools/factual_audit.sh"; [ -f "$AUDIT" ] || AUDIT="tools/factual_audit.sh"
+bash "$AUDIT" paper/ deep-experiment-logs/
+EXIT_CODE=$?
+```
+
+The factual audit checks:
+1. **Metric mismatch**: numbers in paper/ `.tex` vs numbers in deep-experiment-logs/ `metrics.json`.
+   If claimed value differs from actual by >10× → FAIL.
+2. **Seed count fraud**: paper claims ≥5 seeds, but results directory shows 1 seed → FAIL.
+3. **Reproducibility**: `bash reproduce.sh` runs successfully (checks script exists + executable).
+4. **Checkpoint requirement**: `checkpoints/*.pt` ≥ 3 files.
+
+If the audit fails (exit ≠ 0): send the FAIL items to Codex MCP as mandatory review context.
+The hard bottom lines are applied AFTER Codex MCP's review, using the audit findings
+as ground truth (not subject to model interpretation).
+
 ### Step 3: Codex MCP Review Protocol (MANDATORY — MUST invoke mcp__codex__codex)
 
 **This is the core of the review. You MUST call the Codex MCP tool. Do NOT simulate it.**
@@ -88,8 +111,30 @@ Each stage review produces a verdict: PASS / REVISE / BLOCKED, scored on 5 crite
 | **Technical Soundness** | Are methods correct? Are baselines properly implemented? Are statistics rigorous? |
 | **Readability** | Is the writing clear? Are figures well-designed? Are claims supported by evidence? |
 
-Each criterion scored 1-10. Overall verdict based on the pattern of scores, not just average.
-A fatally flawed method (Technical Soundness <4) cannot be rescued by good writing.
+Each criterion scored 1-10. Overall verdict = soft judgment informed by scores, but
+CONSTRAINED by the hard bottom lines below. A paper cannot PASS if any hard rule triggers,
+regardless of how good the writing or originality scores are.
+
+### Hard Bottom Lines (MUST REVISE — non-negotiable)
+
+1. **Technical Soundness < 4** → mandatory REVISE. A broken method cannot be rescued by prose.
+2. **Core metric off by >10× vs baseline** (e.g., φ MAE 0.79 vs baseline 0.07) → mandatory REVISE.
+   If our method is WORSE than the best baseline on the PRIMARY metric → cannot PASS.
+3. **Statistical fraud** → mandatory REVISE: p > 0.05 but paper claims p < 0.01, or claimed
+   n≥5 seeds but only 1 seed found in results, or claimed test set ≥1000 but only 200 found.
+4. **Reproducibility failure** → mandatory BLOCKED: `bash reproduce.sh` fails (exit ≠ 0) or
+   `checkpoints/*.pt` < 3 files.
+
+If any hard bottom line triggers, the verdict is automatically REVISE (lines 1-3) or
+BLOCKED (line 4). The soft scores are recorded but do not override the hard lines.
+
+### Soft Judgment (applies when no hard bottom line triggers)
+
+Overall verdict is Codex MCP's holistic judgment of the 5 scores + factual audit report.
+Soft criteria (Originality, Importance, Readership, Readability) influence the verdict
+but cannot override a hard bottom line. A paper with Technical Soundness=9 but metric
+off by >10× is STILL REVISE due to hard line 2.
+
 If REVISE or BLOCKED: the pipeline MUST return to that stage and fix the issue.
 The reviewer then re-evaluates after fixes are applied.
 
@@ -252,21 +297,35 @@ For ROUND = 1, 2, ... until PASS or MAX_REVIEW_ROUNDS:
 
 ### Gate Rollback Rules
 
-When REVISE is returned, do NOT restart the entire pipeline. Roll back to the
-specific Phase that needs fixing. The reviewer's verdict MUST specify
-`rollback_to: Phase N` AND `reason:`:
+When REVISE is returned, roll back to a SPECIFIC sub-phase. The reviewer MUST specify
+BOTH `rollback_to` AND `fix_target`:
 
-| Reviewer Finds | Rollback To | What to Fix |
-|---------------|-------------|-------------|
-| Idea flawed / wrong baselines / missing novelty | **Phase 1** | Re-run idea-discovery with reviewer feedback |
-| Baseline bug / missing stats / weak results | **Phase 2** | Fix code, re-run experiments, regenerate figures |
-| Citation missing / format wrong / claim overstated | **Phase 3** | Fix paper, recompile, re-review |
-| Idea + experiments both flawed | **Phase 1** | Start from idea (experiments depend on correct idea) |
-| Experiments fine, paper misrepresents them | **Phase 3** | Rewrite paper sections (don't re-run experiments) |
+```
+verdict: REVISE
+rollback_to: Phase 2.2        # sub-phase granularity
+fix_target: hyperparams       # what specifically to fix
+reason: φ MAE 0.79 vs LM-NLS 0.07 (11× worse). Only 48 epochs (need ≥100).
+```
 
-The pipeline reads `rollback_to` from the review verdict and resumes from that Phase.
-Previously completed Phases whose outputs are still valid can be reused (don't re-run
-literature review if only Phase 2 code needs fixing).
+| Issue Type | rollback_to | fix_target | What to Fix |
+|-----------|------------|-----------|-------------|
+| Idea fundamentally wrong | Phase 1 | idea | Re-run idea-discovery |
+| Wrong baselines chosen | Phase 1 | baselines | Re-do literature search |
+| Method hard-error (metric off by >10×, reproduce.sh fails) | Phase 2.1 | experiment_code | Rewrite model/loss/training code |
+| Training insufficient (<100 epochs, <5 seeds) | Phase 2.2 | hyperparams | Increase epochs/seeds, tune |
+| Baseline implementation bug | Phase 2.3 | baselines | Fix baseline code, re-evaluate |
+| Analysis/claim wrong (p-values, metric interpretation) | Phase 2.4 | analysis | Re-run analysis, fix claims |
+| Data pipeline error (SNR definition, noise model) | Phase 2.5 | data | Fix data generation |
+| Missing figures, poor plot quality | Phase 2.6 | plotting | Re-generate figures |
+| Writing structure, missing sections | Phase 3.1 | writing | Rewrite sections |
+| Citations, formatting, LaTeX errors | Phase 3.2 | format | Fix bib, template, compile |
+| Paper misrepresents results | Phase 3.3 | claims | Align claims with evidence |
+| All three stages PASS → exit with SUBMISSION_READY |
+
+The pipeline reads `rollback_to` and resumes from that sub-phase.
+Details of each sub-phase are in deep-experiment-loop SKILL.md (Phase 2.x)
+and paper-writing SKILL.md (Phase 3.x). Previously completed work that is
+still valid can be reused — e.g., if only plotting needs fixing, don't re-train.
 
 ### REFINE vs REVISE
 
