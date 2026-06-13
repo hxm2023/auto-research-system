@@ -1,49 +1,50 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
 # OS
 .DS_Store
 Thumbs.db
 
-# Editor
-*.swp
-*.swo
-*~
-.vscode/
-.idea/
-
-# Python
-__pycache__/
-*.pyc
-*.pyo
-
-# Environment
-.env
-
-# Claude Code local config — contains API keys and personal settings
+# ARIS
+.aris/tools/
+.aris/installed-skills.txt.tmp.*
 .claude/
 
-# Patent output — contains confidential invention details, do not commit
-patent/
-# Allow patent framework files (skills, templates, shared references)
-!skills/patent-pipeline/
-!skills/prior-art-search/
-!skills/patent-novelty-check/
-!skills/invention-structuring/
-!skills/claims-drafting/
-!skills/embodiment-description/
-!skills/figure-description/
-!skills/specification-writing/
-!skills/patent-review/
-!skills/jurisdiction-format/
-!skills/shared-references/patent-format-cn.md
-!skills/shared-references/patent-format-ep.md
-!skills/shared-references/patent-format-us.md
-!skills/shared-references/patent-writing-principles.md
-!skills/shared-references/prior-art-databases.md
-!templates/INVENTION_BRIEF_TEMPLATE.md
-!templates/PATENT_CLAIMS_TEMPLATE.md
-!templates/PATENT_SPECIFICATION_TEMPLATE.md
+# Project artifacts
+checkpoints/
+data/
+*.h5
+*.npz
+*.pt
+*.pth
 
-# OMC runtime state
-.omc/
+# Paper artifacts
+paper/main.aux
+paper/main.log
+paper/main.out
+paper/main.pdf
+paper/*.aux
+paper/*.log
 
-# ARIS runtime state (per-project traces, caches, installed-skills manifest)
-.aris/
+# Deep experiment logs (keep structure, ignore temp)
+deep-experiment-logs/*.log
+deep-experiment-logs/gate_check_*.log
+
+# Node
+node_modules/
+
+# Secrets
+.env
+*.key
+*.pem
+credentials.json
