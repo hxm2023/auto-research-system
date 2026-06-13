@@ -23,6 +23,25 @@ Phase 0 → Phase 1 → Phase 2 → Phase 3 → Phase 4 (iterative, ≤5 cycles)
 | 3: Paper Writing | /paper-writing | paper/main.pdf |
 | 4: Cross-Stage Review | /domain-reviewer → Codex MCP | review-stage/SUBMISSION_READY.md |
 
+## Run State (AUTOMATIC — track Phase completion for resume)
+
+After EVERY Phase completes AND its gate passes → record the state:
+
+```bash
+STATE=".aris/tools/run_state.sh"; [ -f "$STATE" ] || STATE="tools/run_state.sh"
+bash "$STATE" set <phase> done
+```
+
+When starting the pipeline, check if a previous run exists:
+
+```bash
+NEXT=$(bash "$STATE" resume)
+# If NEXT == 3 → skip Phases 0-2, start at Phase 3
+# If NEXT == done → all Phases complete
+```
+
+If `from-phase` is explicitly specified, it overrides the run state.
+
 ## Resume from Phase
 
 Add `--from-phase: N` to skip completed Phases. Must have required inputs (see Stage Contracts).

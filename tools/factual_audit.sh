@@ -84,6 +84,22 @@ else
     fail "paper/figures: only $N_FIGS figures (need >= 4)"
 fi
 
+# ─── Check 8: Evidence existence — numbers cited in paper exist in results ──
+EVIDENCE_ISSUES=0
+if [ -f "$PAPER_DIR/main.tex" ]; then
+    # Extract all numeric values from paper (e.g., "MAE 0.264", "RMSE = 0.0545")
+    CLAIMED_NUMS=$(grep -oh '[0-9]\+\.[0-9]\+' "$PAPER_DIR"/main.tex "$PAPER_DIR"/sections/*.tex 2>/dev/null | sort -u || echo "")
+    # Check if each claimed number appears somewhere in experiment logs
+    for num in $CLAIMED_NUMS; do
+        if ! grep -rq "$num" "$EXPERIMENT_DIR"/ROUND_*/results/ 2>/dev/null; then
+            # Not found in results — might be a typo or hallucination
+            EVIDENCE_ISSUES=$((EVIDENCE_ISSUES + 1))
+            [ $EVIDENCE_ISSUES -le 5 ] && fail "Evidence: claimed value '$num' not found in experiment results"
+        fi
+    done
+    [ $EVIDENCE_ISSUES -eq 0 ] && pass "Evidence: all paper numbers found in experiment results"
+fi
+
 # ─── Summary ─────────────────────────────────────────────────────────────
 echo ""
 if [ "$ISSUES" -eq 0 ]; then
