@@ -122,6 +122,16 @@ Round N complete. Decision: [DECIDE]. Key finding: [one sentence]. Next round: N
 Primary metric: [our value] vs best baseline: [baseline value]. Gap: [delta].
 ```
 
+## Network & Mirror Sites
+
+If server cannot access HuggingFace / arXiv / GitHub / PyPI:
+- **HuggingFace**: `export HF_ENDPOINT=https://hf-mirror.com` before any model loading
+- **arXiv papers**: download PDFs locally and `scp` to server; or use `arxiv.org` mirror
+- **GitHub**: `git clone https://ghproxy.com/https://github.com/...` mirror
+- **PyPI**: `uv pip install --index-url https://mirrors.aliyun.com/pypi/simple/ <pkg>`
+- **Test first**: `curl -s --max-time 5 <url>` before assuming service is available.
+  If blocked, `WebSearch: "<service> mirror China"` for alternatives.
+
 ## Constants
 
 - **MAX_ROUNDS = 30**
