@@ -409,18 +409,46 @@ if research-wiki/ exists:
 > - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
 > - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 
+## Idea Generation Framework: "更高更快更强更省" (from HKUST Supervisor-Skills)
+
+When generating ideas against an existing baseline, systematically explore 5 dimensions.
+For each dimension, ask "what does the baseline miss or do poorly?"
+
+### 1. 更高 (Higher) — Better Accuracy & Effectiveness
+- **Information/Modality Augmentation**: Does the baseline ignore useful input signals? Add data distributions, domain knowledge, or feedback signals to the input.
+- **Feedback-driven Refinement**: Can the model self-correct using execution results, compiler errors, or validation feedback?
+- **Error-driven Analysis**: Run the baseline, collect failure cases, classify error types, and design targeted modules for the dominant error category.
+
+### 2. 更快 (Faster) — Better Efficiency & Lower Overhead
+- **Caching & Experience Reuse**: Can successful trajectories/executions be cached and retrieved later instead of recomputed from scratch?
+- **Parallelization & Decoupling**: Can a monolithic pipeline be split into parallel sub-tasks handled by specialized components?
+- **Early Exit & Dynamic Routing**: Can simple cases use lightweight methods, reserving expensive computation only for complex cases?
+
+### 3. 更强 (Stronger) — Better Robustness & Generalization
+- **Noise-tolerance & Fault-tolerance**: Does the baseline break on noisy/malformed input? Add intent clarification, input sanitization, or graceful degradation.
+- **Exception Recovery**: Can the system auto-retry with alternative tools or adjusted parameters when an API call or component fails?
+- **Decoupling for Generalization**: Separate generic reasoning from domain-specific knowledge for zero-shot cross-domain transfer.
+
+### 4. 更省 (Cheaper) — Lower Data & Annotation Cost
+- **Few-shot / Zero-shot**: Can the approach work with fewer labeled examples? Use pretrained representations, weak supervision, or self-supervised objectives.
+- **Synthetic Data**: Can realistic training data be generated programmatically? Document the generation parameters and validate against real data distributions.
+- **Active Learning**: Can the model identify which examples would be most informative to label next?
+
+### 5. 更简单 (Simpler) — Better Elegance & Explainability
+- **Complexity Removal**: Can a simpler architecture match or exceed the baseline? Removing components that don't help IS a contribution.
+- **Interpretability**: Can you explain WHY the method works? Visualizations, attention maps, ablation tables.
+
+**Rule**: Don't just "apply X to Y." Use this framework to identify a SPECIFIC gap in the baseline, then design a targeted solution. Each idea should name which dimension(s) it improves and by what mechanism.
+
 ## Key Rules
 
-- **Large file handling**: If the Write tool fails due to file size, immediately retry using Bash (`cat << 'EOF' > file`) to write in chunks. Do NOT ask the user for permission — just do it silently.
-
-- The user provides a DIRECTION, not an idea. Your job is to generate the ideas.
+- The user provides a DIRECTION, not an idea. Your job is to generate the ideas using the 5-dimension framework above.
 - Quantity first, quality second: brainstorm broadly, then filter ruthlessly.
 - A good negative result is just as publishable as a positive one. Prioritize ideas where the answer matters regardless of direction.
 - Don't fall in love with any idea before validating it. Be willing to kill ideas.
 - Always estimate compute cost. An idea that needs 1000 GPU-hours is not actionable for most researchers.
-- "Apply X to Y" is the lowest form of research idea. Push for deeper questions.
 - Include eliminated ideas in the report — they save future time by documenting dead ends.
-- **If the user's direction is too broad (e.g., "NLP", "computer vision", "reinforcement learning"), STOP and ask them to narrow it.** A good direction is 1-2 sentences specifying the problem, domain, and constraint — e.g., "factorized gap in discrete diffusion LMs" or "sample efficiency of offline RL with image observations". Without sufficient specificity, generated ideas will be too vague to run experiments on.
+- **If the user's direction is too broad, STOP and ask them to narrow it.**
 - **Anti-hallucination for cited papers.** When the landscape survey or novelty justification cites specific papers, every cited paper must pass pre-search verification (`verify_papers.py`, canonical name resolved per [`shared-references/integration-contract.md`](../shared-references/integration-contract.md) §2; 3-layer arXiv / CrossRef / S2 fallback inside the helper itself). Policy D1 (primary + degraded-output fallback): if the helper is unresolved **or** its invocation fails, mark candidates `[UNVERIFIED]` and continue rather than dropping or guessing. Never fabricate arXiv IDs, DOIs, or titles from memory. Full protocol in [`shared-references/citation-discipline.md`](../shared-references/citation-discipline.md) § Pre-Search Verification Protocol.
 
 ## Composing with Other Skills

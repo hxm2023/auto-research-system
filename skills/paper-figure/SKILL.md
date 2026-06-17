@@ -218,21 +218,31 @@ mcp__codex__codex:
     [list all figures with captions and descriptions]
 ```
 
-### Step 8: Quality Checklist
+### Step 8: Submission-Ready Quality Checklist
 
-Before finishing, verify each figure (from pedrohcgs/claude-code-my-workflow):
+Before finishing, verify each figure against this checklist (inspired by HKUST Supervisor-Skills project):
 
-- [ ] Font size readable at printed paper size (not too small)
-- [ ] Colors distinguishable in grayscale (print-friendly)
-- [ ] **No title inside figures** — titles go only in LaTeX `\caption{}` (from pedrohcgs)
-- [ ] Legend does not overlap data
-- [ ] Axis labels have units where applicable
-- [ ] Axis labels are publication-quality (not variable names like `emp_rate`)
-- [ ] Figure width fits single column (0.48\textwidth) or full width (0.95\textwidth)
-- [ ] PDF output is vector (not rasterized text)
-- [ ] No matplotlib default title (remove `plt.title` for publications)
-- [ ] Serif font matches paper body text (Times / Computer Modern)
-- [ ] Colorblind-accessible (if using colorblind palette)
+| # | Check | Standard |
+|---|-------|----------|
+| 1 | Vector format | PDF/EPS/SVG output (no rasterized text) |
+| 2 | Font readability | ≥8pt at printed paper size |
+| 3 | Self-contained caption | Reader can understand the figure without reading body text |
+| 4 | Axis labels with units | Complete, not variable names like `emp_rate` |
+| 5 | Legend complete | Every element in the figure appears in the legend |
+| 6 | Colorblind-friendly | Color + line-style/marker dual encoding |
+| 7 | Y-axis range honest | Not truncated to exaggerate differences |
+| 8 | Consistent naming | Module/symbol names match body text exactly |
+| 9 | Our method highlighted | Visually distinctive but not garish |
+| 10 | Code-generated | Reproducible via code, not manual drawing |
+
+**Tool selection guide** (per figure type):
+
+| Figure Type | Primary Tool | Why |
+|-------------|-------------|-----|
+| Motivated Example | PPT / Figma / draw.io | Mixed text, icons, code snippets — needs flexible layout |
+| Solution Overview / Architecture | `/figure-spec` (SVG) or draw.io / TikZ | Clear module boundaries and data flow arrows |
+| Experimental Results | `matplotlib` + `seaborn` | MUST be code-generated for reproducibility |
+| Math / Theorem Illustration | TikZ | Perfect LaTeX integration |
 
 ## Output
 

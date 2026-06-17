@@ -588,6 +588,28 @@ Before declaring done:
 - **Backup before overwrite** — never destroy existing `paper/` directory without backing up
 - **Front-load the contribution** — do not hide the payoff until the experiments or appendix
 
+## Writing Quality Standards (from HKUST Supervisor-Skills project)
+
+Before declaring a section or paper complete, verify these 9 standards:
+
+1. **逻辑最关键 (Logic is paramount)**: The paper's reasoning must be so clear that readers follow the argument without raising objections. Every claim traces back to evidence. Every step follows from the previous.
+
+2. **提纲挈领 (Overview before details)**: Introduce the whole before the parts. At paper level: abstract → sections. At section level: first paragraph summarizes the section. At paragraph level: first sentence states the point.
+
+3. **段与段之间有联系 (Flow between paragraphs)**: Each paragraph sets up the next. No orphan paragraphs that could be inserted anywhere.
+
+4. **每段围绕一个话题 (Paragraph unity)**: One paragraph = one idea. Leading sentence states it. Body sentences develop it. No tangents.
+
+5. **句与句之间有关联 (Sentence flow)**: Each sentence builds on the previous. No disconnected statements.
+
+6. **图文并茂 (Text and figures work together)**: A reader skimming the figures and their captions should grasp the core contribution. If the architecture diagram is unclear, the author hasn't thought clearly.
+
+7. **贯穿全文的例子 (Running example)**: Use a consistent example throughout the paper. It makes abstract concepts concrete and gives the reader a thread to follow.
+
+8. **自包含 (Self-contained)**: The paper must be understandable without consulting external references. Define all notation, explain all concepts. Don't assume the reader has read your previous work.
+
+9. **文章要聚焦 (Stay focused)**: Every section, paragraph, and sentence serves the paper's thesis. Cut anything that doesn't directly support the contribution. A shorter, focused paper beats a long, meandering one.
+
 ## Writing Quality Reference
 
 - `../shared-references/writing-principles.md` — story framing, abstract/introduction patterns, sentence-level clarity, reviewer reading order

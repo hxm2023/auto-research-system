@@ -140,7 +140,11 @@ The reviewer then re-evaluates after fixes are applied.
 
 ## Stage 1: Idea Review
 
-Review `idea-stage/IDEA_REPORT.md` and related files.
+Review `idea-stage/IDEA_REPORT.md` and related files against reviewer expectations
+(from HKUST Supervisor-Skills, Dr. Luo Yuyu):
+
+**Reviewers want**: Novel Problem | Novel Method | Nice Story | Nice Presentation
+**Reviewers hate**: Old problem + simple combination | Existing methods without adaptation | Poor presentation | Weak experiments
 
 ### 1A. Domain Plausibility Check
 - Is the problem formulation consistent with domain conventions?
