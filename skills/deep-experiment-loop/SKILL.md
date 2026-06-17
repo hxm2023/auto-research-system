@@ -149,6 +149,19 @@ deep-experiment-logs/
 
 ## Phase 1: Task Checklist Generation (Round 0)
 
+### Pre-Step: Experimental Design (Fisher's 3 Principles)
+
+Before generating the checklist, apply these principles (from K-Dense scientific-agent-skills):
+
+1. **Randomization**: Train/val/test split MUST be random + seeded. No systematic assignment.
+   Multiple measurements on the same unit ≠ independent replicates (pseudoreplication trap).
+2. **Replication**: ≥5 seeds = independent training runs. ≥200 test samples (≥1000 preferred).
+   What effect size can your test set detect? 200 samples → ~0.2σ at 80% power.
+   Need to detect a 5% improvement? You need ≥1000 test samples.
+3. **Blocking**: Stratify splits by condition. Per-SNR/noise-type reporting. Control for batch effects.
+
+### Step 1: Generate Checklist from KB + IDEA_REPORT
+
 After Phase 1 (Idea Discovery) completes, generate a DETAILED Phase 2 task checklist.
 This checklist drives ALL subsequent rounds. It is NOT optional.
 

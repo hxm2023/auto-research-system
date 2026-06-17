@@ -202,6 +202,25 @@ Review experiment code, datasets, results, and figures.
 - Are error bars present? Are sample sizes indicated?
 - Is there an architecture diagram showing the method clearly?
 
+### 2E. Statistical Rigor & Experimental Design (from K-Dense scientific-agent-skills)
+
+**Pseudoreplication check** (the most common fatal error):
+- Are repeated measurements on the same unit counted as independent replicates?
+  Example: 5 noise realizations of the same ground-truth trace ≠ 5 independent test samples.
+  If yes → REVISE. This inflates apparent sample size and invalidates statistical tests.
+- Verify: test set = independent units, not repeated measures of fewer units.
+
+**Sample size power analysis**:
+- For the primary metric, what is the minimum detectable effect (MDE) at 80% power?
+  With current test set size N and observed variance σ²: MDE ≈ 2.8σ / √N.
+  If claimed improvement < MDE, the study is underpowered — the result could be noise.
+- Example: 200 test samples, σ=0.5 → MDE ≈ 0.10. A 5% improvement claim (0.005) is NOT detectable.
+
+**Confounding check**:
+- Is train/val/test split randomized? No systematic assignment (first N for train)?
+- Are SNR/noise-type distributions balanced across splits? Stratified split required.
+- Are there batch effects (different days, GPU restarts) that could confound results?
+
 ### 2E. Statistical Rigor
 - Test set ≥ 500 samples (preferably 1000+)
 - ≥ 5 random seeds, report mean ± std
