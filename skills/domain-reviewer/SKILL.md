@@ -174,123 +174,110 @@ Write `review-stage/STAGE1_IDEA_REVIEW.md` with:
 
 Review experiment code, datasets, results, and figures.
 
-### 2A. Code Correctness Audit
-**This is the most important part.** Read the actual code files. Check:
-- Are baseline implementations correct? (e.g., is LM-NLS properly initialized?)
-- Is the data generation physically sound? (e.g., SNR definition, noise models)
-- Are evaluation metrics computed correctly? (e.g., handling of phase wrapping)
-- Are there obvious bugs that could produce misleading results?
-- Is the statistical testing rigorous? (e.g., paired tests, multiple seeds, confidence intervals)
+### Stage 2 Review: 6 Sub-Gates. ANY gate FAIL = REVISE. No soft passes.
 
-### 2B. Baseline Competitiveness
-- Are baseline hyperparameters properly tuned?
-- Are initialization strategies documented and reasonable?
-- Could a well-tuned baseline match or beat the proposed method?
-- Is the comparison fair (same data, same compute budget, same tuning effort)?
+#### Sub-Gate 2A: Experimental Design (if this fails, everything is invalid)
+- [ ] Randomization: train/val/test split randomized + seeded. No systematic assignment.
+- [ ] Pseudoreplication: repeated measures on same unit ≠ independent replicates.
+- [ ] Blocking: stratified by key conditions. Per-SNR/noise-type reporting.
+- [ ] Power: MDE = 2.8σ/√N. Can test set detect claimed improvement?
+- [ ] Controls: all baselines on SAME split, SAME compute budget.
+- fix_target: `2.5 data` (design flaw) or `2.2 hyperparams` (power insufficient)
 
-### 2C. Result Plausibility
-- Are the reported numbers physically reasonable?
-- If a baseline performs surprisingly poorly (e.g., 2.235 rad error when 0.1-0.5 expected),
-  flag this as a likely implementation bug — do NOT accept it as a valid result.
-- Check for outlier samples, NaN, degenerate fits.
-- Require distribution histograms, not just mean/MAE.
+#### Sub-Gate 2B: Code Quality (read .py files — not results summaries)
+- [ ] Baseline correctness: code matches paper method. Read side-by-side.
+- [ ] Our method: forward pass verified, loss correct, no silent bugs.
+- [ ] Edge cases: NaN/empty/extreme input handled, not crashed.
+- [ ] Code structure: organized (src/models/, src/baselines/), not monolithic.
+- [ ] Import hygiene: no `import *`, no bare `except:`, no hardcoded paths.
+- [ ] GPU: batch size tuned, OOM recovery, mixed precision.
+- fix_target: `2.1 experiment_code` (our bug) or `2.3 baselines` (baseline bug)
 
-### 2D. Figure Quality & Domain Relevance
-- Do the figures address what this field cares about?
-- Are axis labels, units, legends correct?
-- Do the plot types match field conventions? (Check downloaded papers for reference)
-- Are error bars present? Are sample sizes indicated?
-- Is there an architecture diagram showing the method clearly?
+#### Sub-Gate 2C: Training Volume (hard numbers — no excuses)
+- [ ] ≥100 epochs MINIMUM per method? If <100 → REVISE. No "early convergence" excuses.
+- [ ] ≥5 seeds ALL methods? Single seed → REVISE. Report mean ± std.
+- [ ] ≥30 GPU-minutes total? 6 minutes is INSUFFICIENT.
+- [ ] ≥3 .pt checkpoints saved (best + final + intermediate)?
+- [ ] Train/val loss curves logged every epoch? Plateaus documented?
+- fix_target: `2.2 hyperparams` — increase epochs/seeds
 
-### 2E. Statistical Rigor & Experimental Design (from K-Dense scientific-agent-skills)
+#### Sub-Gate 2D: Results Quality (numbers must be credible)
+- [ ] Physical plausibility: if baseline gives 2.235 rad but expected 0.1-0.5 → BUG.
+- [ ] Error distributions with histograms + Gaussian fit. Not just mean/MAE.
+- [ ] Per-condition stratification (SNR bins, noise types, parameter ranges).
+- [ ] Paired t-test + Wilcoxon. Exact p-values reported. No cherry-picked best-of-N.
+- fix_target: `2.4 analysis` — re-run properly
 
-**Pseudoreplication check** (the most common fatal error):
-- Are repeated measurements on the same unit counted as independent replicates?
-  Example: 5 noise realizations of the same ground-truth trace ≠ 5 independent test samples.
-  If yes → REVISE. This inflates apparent sample size and invalidates statistical tests.
-- Verify: test set = independent units, not repeated measures of fewer units.
+#### Sub-Gate 2E: Figure Quality (10-item checklist, every figure)
+- [ ] Vector PDF, ≥300 DPI. Font ≥8pt. All axes labeled with units.
+- [ ] Error bars on ALL points (≥5 seeds). Sample size in caption. Legend complete.
+- [ ] Colorblind-friendly (not tab10). Y-axis honest (not truncated). Architecture (Fig1) present.
+- [ ] ≥8 figures in FIGURES/. paper/figures/ has ≥4 files. Domain-appropriate plot types.
+- fix_target: `2.6 plotting` — regenerate specific figures
 
-**Sample size power analysis**:
-- For the primary metric, what is the minimum detectable effect (MDE) at 80% power?
-  With current test set size N and observed variance σ²: MDE ≈ 2.8σ / √N.
-  If claimed improvement < MDE, the study is underpowered — the result could be noise.
-- Example: 200 test samples, σ=0.5 → MDE ≈ 0.10. A 5% improvement claim (0.005) is NOT detectable.
-
-**Confounding check**:
-- Is train/val/test split randomized? No systematic assignment (first N for train)?
-- Are SNR/noise-type distributions balanced across splits? Stratified split required.
-- Are there batch effects (different days, GPU restarts) that could confound results?
-
-### 2E. Statistical Rigor
-- Test set ≥ 500 samples (preferably 1000+)
-- ≥ 5 random seeds, report mean ± std
-- Paired statistical tests (t-test or Wilcoxon) with exact p-values
-- Performance stratified by SNR, parameter range, noise type
-- Distribution histograms, not just aggregate metrics
-
-### 2F. Reproducibility
-- Is all code provided and runnable?
-- Are hyperparameters fully documented?
-- Is the hardware/software environment specified?
-- Can results be reproduced with a single command?
+#### Sub-Gate 2F: Reproducibility
+- [ ] `bash reproduce.sh` runs end-to-end without error?
+- [ ] pyproject.toml / requirements.txt with pinned versions? .gitignore exists?
+- [ ] README.md with quick-start? BASELINE_SOURCES.md with paper citations?
+- fix_target: `2.1 experiment_code` — fix reproduce.sh
 
 ### Stage 2 Verdict
-Write `review-stage/STAGE2_EXPERIMENT_REVIEW.md` with:
-- Score (1-10) per dimension
-- Code bugs found (file:line references)
-- Result plausibility issues (specific numbers)
-- Figure deficiencies (list each figure and its problems)
-- Statistical gaps (what tests are missing)
-- PASS / REVISE / BLOCKED verdict
-- If REVISE: `rollback_to: Phase 2` + specific code changes and additional experiments needed
+
+**If ANY sub-gate has an unchecked item → REVISE. No exceptions.**
+Write `review-stage/STAGE2_EXPERIMENT_REVIEW.md` with every failed check
+(sub-gate: item + evidence), fix_target for each, minimum changes before re-review.
+Only ALL 6 PASS → proceed to Stage 3.
 
 ## Stage 3: Paper Review
 
 Review the compiled paper PDF and LaTeX source.
 
-### 3A. Read the Paper
-Read `paper/main.tex` and all `paper/sections/*.tex`. Read the compiled PDF.
-**If `paper/main.pdf` exists, read it as an image to check figure quality and layout.**
+### Stage 3 Review: 5 Sub-Gates. ANY gate FAIL = REVISE.
 
-### 3B. Format & Venue Compliance
-- Does the paper use the correct LaTeX template for the target venue?
-- Check for the venue's template. If a specific `.cls` or `.sty` file exists for the venue,
-  verify it's used. If not, search for it.
-- Page/figure limits respected?
-- Abstract word count within limit?
+#### Sub-Gate 3A: Format & Template
+- [ ] Venue LaTeX template (.cls/.sty) downloaded and used?
+- [ ] Page/figure/abstract word limits respected?
+- [ ] VENUE_CONSTRAINTS.md exists and is followed?
+- fix_target: `3.2 format` — download template, recompile
 
-### 3C. Figure Audit
-- **Every `\includegraphics` must point to an existing file.**
-  Run: `grep -rn "includegraphics" paper/` and verify each path.
-- Do figures actually appear in the compiled PDF? (Check visually)
-- Are figures referenced in the text? (`\ref{fig:...}` in body text)
-- Does Figure 1 show the architecture diagram?
-- Are figure captions complete and informative?
+#### Sub-Gate 3B: Figure Audit (run grep — no guessing)
+- [ ] Every `\includegraphics` points to an existing file: `grep -rn "includegraphics" paper/ | while read f; do [ -f "$f" ] || echo "MISSING: $f"; done` — must return empty
+- [ ] Figures visible in compiled PDF? Paper opened as image to verify.
+- [ ] All figures referenced in body text (`\ref{fig:...}`)?
+- [ ] Figure 1 = architecture diagram? Captions complete and self-contained?
+- fix_target: `3.2 format` — fix figures
 
-### 3D. Citation Audit
-- **Every `\cite{...}` in the body must have a corresponding entry in references.bib.**
-  Run: extract all cite keys, verify all exist in .bib.
-- **Every entry in references.bib must be cited in the body.**
-  Run: extract all bib keys, verify all appear in .tex files. Remove uncited entries.
-- Verify key citations are real (spot-check with arXiv/Semantic Scholar API).
-- Check that claims attributed to cited papers are accurate.
+#### Sub-Gate 3C: Citation Audit (bidirectional — run grep)
+- [ ] Every `\cite{key}` has corresponding `@article{key,` in .bib? No orphans.
+- [ ] Every bib entry cited in body text? No uncited fillers.
+- [ ] Spot-check 3 key citations: do the cited papers actually exist and support the claim?
+- fix_target: `3.2 format` — fix citations
 
-### 3E. Content Review
-- Are claims consistent with the experimental evidence?
-- Is the writing physically accurate? (e.g., phase wrapping: φ→φ+2π, not +π)
-- Are limitations honestly discussed?
-- Is the comparison to prior work fair and complete?
-- Are there formatting errors? (missing spaces, broken ranges like "540dB" → "5–40 dB")
+#### Sub-Gate 3D: Content Quality (9 writing standards from Supervisor-Skills)
+- [ ] Logic clear: every claim traces to evidence. No gaps in reasoning.
+- [ ] Overview-first: abstract → sections → paragraphs. Each paragraph has leading sentence.
+- [ ] Flow: paragraphs connect. Sentences build. No orphans.
+- [ ] Paragraph unity: one idea per paragraph. No tangents.
+- [ ] Text+figures: skimming figures+captions gives core contribution.
+- [ ] Self-contained: all notation defined. No "as shown in [X]" without explanation.
+- [ ] Focused: every section/sentence serves the thesis. Cut irrelevant content.
+- [ ] AI disclosure absent: `grep -qi "claude\|ai-assisted\|chatgpt" paper/sections/*.tex` → empty.
+- [ ] No formatting errors: "540dB" → "5–40 dB", names formatted correctly.
+- fix_target: `3.1 writing` — rewrite sections
+
+#### Sub-Gate 3E: Claim-Evidence Alignment
+- [ ] Every numerical claim in paper matches a number in experiment results.
+  Run `bash tools/factual_audit.sh paper/ deep-experiment-logs/` → must exit 0.
+- [ ] No overclaimed conclusions: "revolutionary" out, "we demonstrate" fine.
+- [ ] Limitations honestly discussed: sample size, data source, hardware constraints.
+- fix_target: `3.3 claims` — align claims with evidence or `2.4 analysis` if data missing
 
 ### Stage 3 Verdict
-Write `review-stage/STAGE3_PAPER_REVIEW.md` with:
-- Score (1-10) per dimension
-- Format issues found (line references)
-- Figure problems (specific paths)
-- Citation problems (specific keys)
-- Content accuracy issues (specific claims)
-- PASS / REVISE / BLOCKED verdict
-- If REVISE: `rollback_to: Phase 3` + specific paper changes needed (no re-experiment)
+
+**If ANY sub-gate has an unchecked item → REVISE. No exceptions.**
+Write `review-stage/STAGE3_PAPER_REVIEW.md` with every failed check
+(sub-gate: item + evidence), fix_target for each, minimum changes before re-review.
+Only ALL 5 PASS → Stage 3 complete.
 
 ---
 
