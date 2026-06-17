@@ -445,6 +445,17 @@ Include all baselines + our method in every comparison plot, with paper citation
 - **MUST use optimizer + loss-based fine-tuning.** No frozen-backbone-only approaches.
   Use AdamW optimizer, compute loss on the task objective, backprop through the full model.
   Fine-tune at minimum the top layers, preferably the full backbone. This is non-negotiable.
+- **MUST log training metrics every epoch.** Save to `ROUND_NN/results/training_log.csv`:
+  ```csv
+  epoch,train_loss,val_loss,lr,train_acc,val_acc,...
+  1,2.345,2.456,0.001,0.65,0.63,...
+  ```
+  Also generate `ROUND_NN/results/training_curves.pdf`: matplotlib plot with train+val loss
+  curves, annotated with best epoch and convergence point. These logs enable:
+  - Debugging: is loss diverging? Plateauing? Overfitting (val_loss >> train_loss)?
+  - Optimization: which epoch to load for best checkpoint?
+  - Paper: training curve goes into the paper as a diagnostic figure.
+  `gate_check.sh` verifies: training_log.csv exists with ≥100 rows.
 - **If `data_lab/` exists**: evaluate() MUST run on real data and produce results.
   plot.py MUST generate figures from real data, not only synthetic data.
   The paper's results section must report both synthetic and real data performance.

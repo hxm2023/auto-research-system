@@ -199,6 +199,8 @@ Review experiment code, datasets, results, and figures.
 - [ ] ≥30 GPU-minutes total? 6 minutes is INSUFFICIENT.
 - [ ] ≥3 .pt checkpoints saved (best + final + intermediate)?
 - [ ] Train/val loss curves logged every epoch? Plateaus documented?
+- [ ] `training_log.csv` exists with ≥100 rows (epoch,train_loss,val_loss,lr)? `training_curves.pdf` generated?
+  These are mandatory — they enable debugging (divergence, plateau, overfitting).
 - fix_target: `2.2 hyperparams` — increase epochs/seeds
 
 #### Sub-Gate 2D: Results Quality (numbers must be credible)

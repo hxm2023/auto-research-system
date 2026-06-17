@@ -92,6 +92,15 @@ check_phase_2_round() {
     [ "$n_plots" -ge 4 ] && pass "plots: $n_plots PDF files" || fail "plots: $n_plots PDF files (need >= 4)"
     [ "$small_plots" -eq 0 ] && pass "all plot files > 5KB (not placeholders)" || fail "$small_plots plot(s) < 5KB — likely empty/placeholder"
 
+    # Training log must exist with >= 100 rows (one per epoch)
+    if [ -f "$R/results/training_log.csv" ]; then
+        local csv_rows=$(wc -l < "$R/results/training_log.csv" 2>/dev/null || echo 0)
+        [ "$csv_rows" -ge 100 ] && pass "training_log.csv: $csv_rows rows (need >= 100 epochs)" || fail "training_log.csv: only $csv_rows rows (need >= 100 — train longer)"
+    else
+        fail "training_log.csv missing — training did not log epoch metrics"
+    fi
+    [ -f "$R/results/training_curves.pdf" ] && pass "training_curves.pdf exists" || fail "training_curves.pdf missing"
+
     # plot.py must include quality markers AND be substantial (not a 20-line stub)
     if [ -f "code/plot.py" ]; then
         local plot_lines=$(wc -l < "code/plot.py" 2>/dev/null || echo 0)
