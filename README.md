@@ -70,6 +70,17 @@ mkdir my-research && cd my-research && git init
 | 6 | **Source code** | If using existing codebase, put it in the project folder | `granite-tsfm-main/` |
 | 7 | **wandb API key** | Only for DL projects. Write key to `wandb_api.txt` (not in CLAUDE.md!) | `wandb_api.txt` (gitignored) |
 
+### wandb Setup
+
+For deep learning projects that need training monitoring (PyTorch/RL/transformers):
+
+```bash
+echo "your_wandb_api_key" > wandb_api.txt
+```
+
+ARIS reads this file at runtime. If it exists → wandb logging enabled. If not → skip silently.
+The file is gitignored, never committed to GitHub. No configuration in CLAUDE.md needed.
+
 ### CLAUDE.md Template
 
 ```markdown

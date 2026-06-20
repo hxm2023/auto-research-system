@@ -63,6 +63,17 @@ mkdir my-research && cd my-research && git init
 | 6 | **相关源码** | 放进项目文件夹 | `granite-tsfm-main/` |
 | 7 | **wandb API key** | 仅DL项目。把key写入 `wandb_api.txt`（不要在 CLAUDE.md 里写！） | `wandb_api.txt`（gitignored） |
 
+### wandb 设置
+
+深度学习项目（PyTorch/RL/transformers）需要训练监控时：
+
+```bash
+echo "你的wandb_api_key" > wandb_api.txt
+```
+
+ARIS 运行时自动读取这个文件。文件存在 → 启用 wandb 日志。不存在 → 静默跳过。
+该文件已被 gitignore，永远不会提交到 GitHub。CLAUDE.md 里不需要任何 wandb 配置。
+
 ### CLAUDE.md 模板
 
 ```markdown
