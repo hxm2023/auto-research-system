@@ -147,23 +147,33 @@ export CUDA_VISIBLE_DEVICES=7,6
 **If running on remote server via SSH**: run the nvidia-smi check on the server first.
 **If running locally**: check local GPU. If VRAM < 4GB free, reduce batch size or use CPU.
 
-## wandb Integration (MANDATORY for all training runs)
+## wandb Integration (ONLY for deep learning training projects)
 
-**Every training run MUST log to wandb.** This is non-negotiable for deep learning projects.
+**wandb is mandatory ONLY when the project involves neural network training** (PyTorch, transformers, DeepSpeed, FSDP, etc.). Skip wandb entirely for simulation-only projects, classical statistics, or non-DL experiments.
 
+### When to use wandb:
+- ✅ Training neural networks (PyTorch, TensorFlow, JAX)
+- ✅ Fine-tuning transformers / LLMs
+- ✅ RL training (GRPO, PPO, DPO)
+- ✅ Any experiment with multiple epochs that needs loss/reward curve tracking
+
+### When to SKIP wandb:
+- ❌ Classical optimization (scipy.optimize, curve_fit, LM-NLS)
+- ❌ Bayesian MCMC (emcee, PyMC)
+- ❌ Pure simulation (numpy-only physics sims)
+- ❌ Statistical analysis only (no training loop)
+- ❌ FFT / signal processing baselines
+
+### If this project needs wandb:
 1. Read `CLAUDE.md` for `wandb_api_key` or `WANDB_API_KEY`.
-2. Initialize before training:
-   ```python
-   import wandb
-   wandb.login(key="<from CLAUDE.md>")
-   wandb.init(project="<project-name>", config={...})
-   ```
-3. Log EVERY epoch: `wandb.log({"train_loss": ..., "val_loss": ..., "lr": ..., "epoch": ...})`
-4. Log final metrics: `wandb.log({"best_val_loss": ..., "total_epochs": ..., "gpu_hours": ...})`
-5. After training completes: `wandb.finish()`
-6. If wandb API key is NOT in CLAUDE.md: train without wandb but LOG A WARNING:
-   "wandb not configured — add wandb_api_key to CLAUDE.md for experiment tracking."
-   Still save training_log.csv and curves locally.
+2. Initialize before training: `wandb.login(key=...)` + `wandb.init(project=...)`.
+3. Log EVERY epoch: train_loss, val_loss, lr, metrics.
+4. After training: `wandb.finish()`.
+5. If API key missing: train without wandb but WARN and save CSV+curves locally.
+
+### If this project does NOT need wandb:
+Skip all wandb setup. `training_log.csv` + `training_curves.pdf` are sufficient.
+Do NOT ask the user for a wandb key for non-DL projects.
 
 ## Network & Mirror Sites
 
