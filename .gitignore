@@ -48,3 +48,4 @@ node_modules/
 *.key
 *.pem
 credentials.json
+wandb_api.txt

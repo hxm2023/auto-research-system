@@ -68,7 +68,7 @@ mkdir my-research && cd my-research && git init
 | 4 | **Real data** | `data_lab/` folder + `data_lab/illustration.md` explaining the data | `.xls`, `.csv`, `.png` files |
 | 5 | **Remote server** | Add SSH + GPU info at the END of CLAUDE.md | See template below |
 | 6 | **Source code** | If using existing codebase, put it in the project folder | `granite-tsfm-main/` |
-| 7 | **wandb API key** | Only for deep learning projects that need training monitoring | `wandb_api_key: "your_key"` |
+| 7 | **wandb API key** | Only for DL projects. Write key to `wandb_api.txt` (not in CLAUDE.md!) | `wandb_api.txt` (gitignored) |
 
 ### CLAUDE.md Template
 
@@ -93,10 +93,6 @@ ARIS skills installed in this project.
 ## Experiment Requirements
 - ≥150 epochs, ≥5 seeds, ≥1000 test samples, p<0.01
 - All code in src/, uv manage, bash reproduce.sh
-
-## wandb (only if needed)
-- wandb_api_key: "your_key"
-- wandb_project: "project-name"
 
 ## Remote Server (only if using server)
 - SSH: `ssh myserver`

@@ -149,26 +149,29 @@ export CUDA_VISIBLE_DEVICES=7,6
 
 ## wandb Integration
 
-**One rule**: Read CLAUDE.md. If `wandb_api_key` exists → use wandb. If not → skip.
+**One rule**: Read `wandb_api.txt` in project root. If it exists → use wandb. If not → skip.
 
 ### wandb decision logic:
 
 ```python
-# Read CLAUDE.md. If wandb_api_key exists → use wandb. If not → skip.
-if wandb_key_present_in_claude_md:
+import os
+# Check if wandb_api.txt exists in project root
+if os.path.exists("wandb_api.txt"):
+    with open("wandb_api.txt") as f:
+        wandb_key = f.read().strip()
     wandb.login(key=wandb_key)
     wandb.init(project=project_name)
-    # log every epoch
     wandb.finish()
 else:
-    # No key = no wandb. Skip silently. training_log.csv + curves are enough.
+    # No wandb_api.txt = no wandb. Skip silently. CSV+curves are enough.
     pass
 ```
 
-- **Key in CLAUDE.md → use wandb.** Simple.
-- **No key in CLAUDE.md → skip wandb.** No warning. No question. Just use CSV+curves.
-- **Never ask the user to add a wandb key.** Read what's there, act accordingly.
-- This applies to ALL projects (DL and non-DL). The presence of the key is the decision.
+- **`wandb_api.txt` exists → use wandb.** Simple.
+- **No `wandb_api.txt` → skip wandb.** No warning. No question.
+- **Never ask the user to create wandb_api.txt.** Check for it, act accordingly.
+- **`wandb_api.txt` is in .gitignore** — never committed to GitHub.
+- This applies to ALL projects. The file's existence is the decision.
 
 ## Network & Mirror Sites
 

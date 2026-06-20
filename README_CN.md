@@ -61,7 +61,7 @@ mkdir my-research && cd my-research && git init
 | 4 | **真实数据** | `data_lab/` 文件夹 + `data_lab/illustration.md` 说明数据 | `.xls`, `.csv`, `.png` |
 | 5 | **远程服务器** | CLAUDE.md 末尾加 SSH + GPU 配置（修改工作目录路径） | 见下方模板 |
 | 6 | **相关源码** | 放进项目文件夹 | `granite-tsfm-main/` |
-| 7 | **wandb API key** | 仅深度学习项目需要，用于监控训练 | `wandb_api_key: "你的key"` |
+| 7 | **wandb API key** | 仅DL项目。把key写入 `wandb_api.txt`（不要在 CLAUDE.md 里写！） | `wandb_api.txt`（gitignored） |
 
 ### CLAUDE.md 模板
 
@@ -86,10 +86,6 @@ ARIS skills installed in this project.
 ## 实验要求
 - ≥150 epochs, ≥5 seeds, ≥1000 测试样本, p<0.01
 - 代码在 src/, uv 管理, bash reproduce.sh 一键复现
-
-## wandb（仅深度学习项目需要）
-- wandb_api_key: "你的key"
-- wandb_project: "项目名"
 
 ## 远程服务器（仅在用服务器时写）
 - SSH: `ssh myserver`
