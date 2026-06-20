@@ -36,33 +36,71 @@ ARIS 是一个基于 Claude Code 的 **AI 驱动全自动科研管线**。你只
 git clone https://github.com/hxm2023/auto-research-system.git aris_repo
 ```
 
-### 第 3 步：创建你的科研项目文件夹
+### 第 3 步：创建项目文件夹并连接 ARIS
 
 ```bash
-mkdir my-research
-cd my-research
-git init
+mkdir my-research && cd my-research && git init
 ```
 
-### 第 4 步：安装 ARIS 技能
+然后对 Claude Code 说：**"给这个文件夹连接aris系统"**（Claude 会自动运行 `install_aris.sh`）
 
-```bash
-bash ../aris_repo/tools/install_aris.sh
+### 每个项目需要准备什么
+
+**必要（2 项）**：
+
+| # | 项目 | 怎么做 |
+|---|------|--------|
+| 1 | **连接 ARIS** | 对 Claude 说：`"给这个文件夹连接aris系统"` |
+| 2 | **Marathon prompt** | 以 `/research-pipeline "方向" --deep_mode: true, ...` 开头 |
+
+**可选但推荐（5 项）**：
+
+| # | 项目 | 写在 CLAUDE.md | 示例 |
+|---|------|---------------|------|
+| 3 | **项目配置** | GPU 型号、Python 版本、基线方法、质量要求 | 见下方模板 |
+| 4 | **真实数据** | `data_lab/` 文件夹 + `data_lab/illustration.md` 说明数据 | `.xls`, `.csv`, `.png` |
+| 5 | **远程服务器** | CLAUDE.md 末尾加 SSH + GPU 配置（修改工作目录路径） | 见下方模板 |
+| 6 | **相关源码** | 放进项目文件夹 | `granite-tsfm-main/` |
+| 7 | **wandb API key** | 仅深度学习项目需要，用于监控训练 | `wandb_api_key: "你的key"` |
+
+### CLAUDE.md 模板
+
+```markdown
+<!-- ARIS:BEGIN -->
+## ARIS Skill Scope
+ARIS skills installed in this project.
+<!-- ARIS:END -->
+
+## Project: [项目名称]
+**Goal**: [一句话目标]
+**Target venue**: [目标期刊]
+
+## GPU
+- GPU: [型号, 显存]
+- Python: [版本] | 包管理: uv
+
+## 基线方法
+- [基线1]: [论文引用 + 实现说明]
+- [基线2]: ...
+
+## 实验要求
+- ≥150 epochs, ≥5 seeds, ≥1000 测试样本, p<0.01
+- 代码在 src/, uv 管理, bash reproduce.sh 一键复现
+
+## wandb（仅深度学习项目需要）
+- wandb_api_key: "你的key"
+- wandb_project: "项目名"
+
+## 远程服务器（仅在用服务器时写）
+- SSH: `ssh myserver`
+- GPU: [规格]。从高 GPU index 往低用。
+- 代码目录: `/path/to/project`
+- HF 镜像: `export HF_ENDPOINT=https://hf-mirror.com`（HF 被墙时用）
+- 所有代码在服务器运行。除代码目录外不修改任何文件。
+- tmux: `tmux new -d -s exp 'bash -c "..."'`
 ```
 
-**`install_aris.sh` 做了什么？**
-- 在你的项目文件夹里创建 `.claude/skills/` 目录
-- 把 ARIS 的 84 个技能用符号链接链接进去
-- 创建 `.aris/installed-skills.txt` 记录安装清单
-- 自动生成 `CLAUDE.md` 中的 ARIS 配置块
-
-### 第 5 步：配置 CLAUDE.md（可选但推荐）
-
-在项目文件夹里创建 `CLAUDE.md`，写入 GPU、Python 环境、基线要求等。详见 [安装指南](SETUP_GUIDE_CN.md)。
-
-### 第 6 步：启动 Claude Code，发射
-
-在项目文件夹里打开 Claude Code，粘贴：
+### 第 4 步：启动 Claude Code，发射
 
 ```
 /research-pipeline "你的研究方向" --deep_mode: true, auto_write: true, auto_proceed: true, venue: "你的目标期刊", arxiv_download: true

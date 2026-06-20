@@ -39,18 +39,72 @@ builder          (literature       (30 rounds:           (template->plan   (Code
 
 ```bash
 # Clone ARIS
-git clone https://github.com/wanshuiyin/Auto-claude-code-research-in-sleep.git aris_repo
+git clone https://github.com/hxm2023/auto-research-system.git aris_repo
 
 # Create your research project
 mkdir my-research && cd my-research && git init
 
-# Install ARIS skills
-bash ../aris_repo/tools/install_aris.sh
-
-# Add project config (CLAUDE.md with GPU specs, Python env, baseline requirements)
+# Tell Claude to connect ARIS to this folder:
+"给这个文件夹连接aris系统"
 
 # Open Claude Code in this directory and run:
 /research-pipeline "Your research direction" --deep_mode: true, auto_write: true, auto_proceed: true, venue: "Your Target Journal"
+```
+
+### What Each Project Needs
+
+**Mandatory (2 items)**:
+
+| # | Item | How |
+|---|------|-----|
+| 1 | **Connect ARIS** | Tell Claude: `"给这个文件夹连接aris系统"` (Claude will run `install_aris.sh` for you) |
+| 2 | **Marathon prompt** | Start with `/research-pipeline "方向" --deep_mode: true, ...` |
+
+**Optional but recommended (5 items)**:
+
+| # | Item | Put in CLAUDE.md | Example |
+|---|------|-----------------|---------|
+| 3 | **Project config** | GPU specs, Python env, baseline methods, quality requirements | See template below |
+| 4 | **Real data** | `data_lab/` folder + `data_lab/illustration.md` explaining the data | `.xls`, `.csv`, `.png` files |
+| 5 | **Remote server** | Add SSH + GPU info at the END of CLAUDE.md | See template below |
+| 6 | **Source code** | If using existing codebase, put it in the project folder | `granite-tsfm-main/` |
+| 7 | **wandb API key** | Only for deep learning projects that need training monitoring | `wandb_api_key: "your_key"` |
+
+### CLAUDE.md Template
+
+```markdown
+<!-- ARIS:BEGIN -->
+## ARIS Skill Scope
+ARIS skills installed in this project.
+<!-- ARIS:END -->
+
+## Project: [Your Project Name]
+**Goal**: [One sentence]
+**Target venue**: [Journal name]
+
+## GPU
+- GPU: [model, VRAM]
+- Python: [version] | Package manager: uv
+
+## Key Baselines
+- [Baseline 1]: [paper citation + implementation notes]
+- [Baseline 2]: ...
+
+## Experiment Requirements
+- ≥150 epochs, ≥5 seeds, ≥1000 test samples, p<0.01
+- All code in src/, uv manage, bash reproduce.sh
+
+## wandb (only if needed)
+- wandb_api_key: "your_key"
+- wandb_project: "project-name"
+
+## Remote Server (only if using server)
+- SSH: `ssh myserver`
+- GPU: [specs]. Use from highest GPU index downward.
+- Code directory: `/path/to/project`
+- HF mirror: `export HF_ENDPOINT=https://hf-mirror.com` (if HF blocked)
+- All code runs on server. Never modify files outside code directory.
+- tmux: `tmux new -d -s exp 'bash -c "..."'`
 ```
 
 ## Marathon Prompt
