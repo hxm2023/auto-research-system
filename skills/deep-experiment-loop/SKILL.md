@@ -122,6 +122,49 @@ Round N complete. Decision: [DECIDE]. Key finding: [one sentence]. Next round: N
 Primary metric: [our value] vs best baseline: [baseline value]. Gap: [delta].
 ```
 
+## Smart GPU Scheduling (MANDATORY before every training run)
+
+**Never launch GPU training without first checking what's available.**
+
+```bash
+# 1. Query GPU status
+nvidia-smi --query-gpu=index,memory.used,memory.total,utilization.gpu --format=csv,noheader
+
+# 2. Only use GPUs with < 5000 MiB used (truly idle)
+# 3. Start from the highest GPU index and work DOWN (7→6→5→4→3→2→1→0)
+#    This avoids conflicting with other projects that typically start from GPU 0.
+# 4. If the project CLAUDE.md specifies a GPU preference, respect it.
+# 5. If you need N GPUs but only M < N are free:
+#    - Use M GPUs with gradient_accumulation to compensate for smaller batch
+#    - Or wait 10 minutes and re-check
+# 6. MAX GPUs: respect CLAUDE.md's limit. Default max = 3.
+# 7. After selecting GPUs, export CUDA_VISIBLE_DEVICES before any python call.
+
+# Example: Need 2 GPUs, GPUs 7,6,5 are free → use 7,6
+export CUDA_VISIBLE_DEVICES=7,6
+```
+
+**If running on remote server via SSH**: run the nvidia-smi check on the server first.
+**If running locally**: check local GPU. If VRAM < 4GB free, reduce batch size or use CPU.
+
+## wandb Integration (MANDATORY for all training runs)
+
+**Every training run MUST log to wandb.** This is non-negotiable for deep learning projects.
+
+1. Read `CLAUDE.md` for `wandb_api_key` or `WANDB_API_KEY`.
+2. Initialize before training:
+   ```python
+   import wandb
+   wandb.login(key="<from CLAUDE.md>")
+   wandb.init(project="<project-name>", config={...})
+   ```
+3. Log EVERY epoch: `wandb.log({"train_loss": ..., "val_loss": ..., "lr": ..., "epoch": ...})`
+4. Log final metrics: `wandb.log({"best_val_loss": ..., "total_epochs": ..., "gpu_hours": ...})`
+5. After training completes: `wandb.finish()`
+6. If wandb API key is NOT in CLAUDE.md: train without wandb but LOG A WARNING:
+   "wandb not configured — add wandb_api_key to CLAUDE.md for experiment tracking."
+   Still save training_log.csv and curves locally.
+
 ## Network & Mirror Sites
 
 If server cannot access HuggingFace / arXiv / GitHub / PyPI:
