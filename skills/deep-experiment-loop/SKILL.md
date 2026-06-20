@@ -147,33 +147,28 @@ export CUDA_VISIBLE_DEVICES=7,6
 **If running on remote server via SSH**: run the nvidia-smi check on the server first.
 **If running locally**: check local GPU. If VRAM < 4GB free, reduce batch size or use CPU.
 
-## wandb Integration (ONLY for deep learning training projects)
+## wandb Integration
 
-**wandb is mandatory ONLY when the project involves neural network training** (PyTorch, transformers, DeepSpeed, FSDP, etc.). Skip wandb entirely for simulation-only projects, classical statistics, or non-DL experiments.
+**One rule**: Read CLAUDE.md. If `wandb_api_key` exists → use wandb. If not → skip.
 
-### When to use wandb:
-- ✅ Training neural networks (PyTorch, TensorFlow, JAX)
-- ✅ Fine-tuning transformers / LLMs
-- ✅ RL training (GRPO, PPO, DPO)
-- ✅ Any experiment with multiple epochs that needs loss/reward curve tracking
+### wandb decision logic:
 
-### When to SKIP wandb:
-- ❌ Classical optimization (scipy.optimize, curve_fit, LM-NLS)
-- ❌ Bayesian MCMC (emcee, PyMC)
-- ❌ Pure simulation (numpy-only physics sims)
-- ❌ Statistical analysis only (no training loop)
-- ❌ FFT / signal processing baselines
+```python
+# Read CLAUDE.md. If wandb_api_key exists → use wandb. If not → skip.
+if wandb_key_present_in_claude_md:
+    wandb.login(key=wandb_key)
+    wandb.init(project=project_name)
+    # log every epoch
+    wandb.finish()
+else:
+    # No key = no wandb. Skip silently. training_log.csv + curves are enough.
+    pass
+```
 
-### If this project needs wandb:
-1. Read `CLAUDE.md` for `wandb_api_key` or `WANDB_API_KEY`.
-2. Initialize before training: `wandb.login(key=...)` + `wandb.init(project=...)`.
-3. Log EVERY epoch: train_loss, val_loss, lr, metrics.
-4. After training: `wandb.finish()`.
-5. If API key missing: train without wandb but WARN and save CSV+curves locally.
-
-### If this project does NOT need wandb:
-Skip all wandb setup. `training_log.csv` + `training_curves.pdf` are sufficient.
-Do NOT ask the user for a wandb key for non-DL projects.
+- **Key in CLAUDE.md → use wandb.** Simple.
+- **No key in CLAUDE.md → skip wandb.** No warning. No question. Just use CSV+curves.
+- **Never ask the user to add a wandb key.** Read what's there, act accordingly.
+- This applies to ALL projects (DL and non-DL). The presence of the key is the decision.
 
 ## Network & Mirror Sites
 
