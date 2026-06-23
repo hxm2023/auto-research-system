@@ -376,6 +376,32 @@ Each round changes ONE thing and measures ONE outcome. Stacking multiple changes
 round makes it impossible to know what worked. Fine-grained, single-variable experiments
 accumulate into major improvements over 30 rounds.
 
+### The 5-Question Pre-Code Checklist (universal — answer BEFORE writing code)
+
+Don't open VSCode until you can answer all five. Write them in `hypothesis.md`:
+
+1. **What SPECIFIC problem are you solving?** The more specific, the better.
+   Good: "In long-context settings, the model under-uses information beyond position 4000."
+   Bad: "The model isn't good at long contexts."
+
+2. **What exactly are you changing?** Data? Loss? Inference strategy? Training pipeline?
+   Change only 1-2 components. Not everything at once.
+   "I'm adding 500 examples of long-distance dependency patterns to the training set."
+
+3. **Why do you think this will help?** State your mechanism hypothesis.
+   "Exposing the model to more long-distance patterns during training should increase
+   its utilization of distant tokens, because the model currently sees mostly local patterns."
+   If you can't write this, you're just guessing randomly.
+
+4. **What is the minimum viable experiment?** Small model, small dataset, quick run.
+   "Test on Qwen2.5-0.5B with 200 synthetic long-context examples. Should take <10 min."
+   Don't start with the full 7B model on 50K data.
+
+5. **Even if it doesn't improve, what will you learn?**
+   "At minimum, I'll know whether data augmentation for long-distance dependency helps
+   at all, or whether the bottleneck is architectural (attention pattern) rather than data."
+   Every negative result with a clear lesson is a seed for the next round.
+
 ### 2B. IMPLEMENT
 
 **Code goes to a UNIFIED project repository, NOT scattered across ROUND_NN/code/.**
@@ -597,6 +623,22 @@ and gate check output are mandatory artifacts saved in `ROUND_NN/results/`.
 ```
 Computes statistics, comparison tables, insights. Then write brief `analysis.md`:
 raw numbers, comparison to targets (gap), what worked/didn't (root cause), next-round implications.
+
+If the result is negative (our method did NOT improve), follow this protocol BEFORE declaring failure:
+
+1. **Rule out low-level bugs**: Can the baseline be reproduced within ~5% of published numbers?
+   Does turning OFF our change restore baseline performance? Try 2-3 random seeds — is this just noise?
+
+2. **Per-category analysis**: Split the data by difficulty / length / category / SNR. Is there
+   ONE subgroup where our method actually helped? Many ideas start as "only works on hard cases"
+   and evolve into conditional methods that become general.
+
+3. **Sample the output**: Look at actual model predictions for 5-10 examples. Any pattern?
+   Is the model making a consistent type of error? A pattern is the seed of the next round.
+
+4. **Write the one-sentence lesson**: "I thought X would improve Y, but [what actually happened].
+   This means [revised understanding of the problem]." This sentence is the input to the next
+   round's hypothesis. Many impactful findings grow from honest post-mortems.
 
 ### 2F. CLAIM-CHECK → `/result-to-claim`
 ```

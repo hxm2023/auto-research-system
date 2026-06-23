@@ -409,6 +409,38 @@ if research-wiki/ exists:
 > - **[Output Manifest Protocol](../shared-references/output-manifest.md)** — log every output to MANIFEST.md
 > - **[Output Language Protocol](../shared-references/output-language.md)** — respect the project's language setting
 
+## What "Works" Looks Like (don't define success too narrowly)
+
+Not every idea needs to beat SOTA. There are three publishable levels:
+
+1. **Clear improvement over strong baseline** — the dream scenario. Metrics up, story clear.
+2. **Advantage only in certain scenarios/subsets, but you explain WHY** — "our method isn't always better, but here's exactly when and why it helps." This is good science.
+3. **Rigorous negative result that disproves common intuition** — "everyone thinks X helps, but we show it doesn't, and here's the evidence." Top venues publish these.
+
+For new researchers: aim to answer ONE question clearly, not to smash SOTA. This mindset prevents morale collapse from early negative results.
+
+## Three Idea Templates (AI/ML/CS fields)
+
+### Template 1: Cross-Domain Technique Transfer
+Take a mature technique from one field and apply it to yours where it hasn't been tried:
+- Curriculum learning from CV → tool-use training for LLMs
+- Debiasing from NLP classification → RL reward shaping
+- Test-time adaptation from vision → LLM inference strategies
+- Data filtering from web-scale pretraining → SFT dataset curation
+
+Key: must explain WHY the technique maps to your scenario. "X from field A has structure S; my task has similar structure S; therefore X should transfer."
+
+### Template 2: Challenge a Default Practice
+Everyone does X by default. Is X actually always good?
+- "Detailed prompts are always better" — show cases where they backfire
+- "More training data always helps" — show saturation or reversal points
+- "Standard evaluation metric Y is reliable" — show systematic failure modes
+Design experiments that reveal WHEN and WHY the default breaks. This work spreads widely because it corrects community intuition.
+
+### Template 3: Systematic Comparison / Unified Framework
+Under one dataset and evaluation protocol, systematically compare different approaches. The finding should be a simple, practical recommendation: "For task X under condition Y, use method Z."
+Not flashy, but high-impact. Requires execution discipline and compute. High ROI for those with good data and hardware access.
+
 ## Idea Generation Framework: "更高更快更强更省" (from HKUST Supervisor-Skills)
 
 When generating ideas against an existing baseline, systematically explore 5 dimensions.
