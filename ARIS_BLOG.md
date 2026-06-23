@@ -8,7 +8,7 @@
 
 ARIS 是一套基于 Claude Code 的 AI 驱动全自动科研管线。它把整个科研流程——从文献调研、idea 生成、实验循环、论文写作到跨模型审稿——全部编排成 5 个自动执行的 Phase，每个 Phase 之间有强制关口检查，任何一个产出不达标就退回重做。
 
-**84 个技能**（Skills）像乐高积木一样组装在一起，每个技能是一份 Markdown 文件，Claude Code 读取后就知道该怎么工作。
+**87 个技能**（Skills）像乐高积木一样组装在一起，每个技能是一份 Markdown 文件，Claude Code 读取后就知道该怎么工作。
 
 如果你正在投 NeurIPS/ICML/ACL/物理期刊、做毕业设计、或者想在一夜之间把一个想法变成可投稿的论文初稿，ARIS 就是为你准备的。
 
@@ -134,7 +134,7 @@ bash ../aris_repo/tools/install_aris.sh
 
 ---
 
-## 84 个技能一览
+## 87 个技能一览
 
 ### 管线核心
 | 技能 | 角色 |
@@ -261,11 +261,30 @@ deep-experiment-loop 不亲自跑实验、不亲自画图、不亲自分析。�
 
 ---
 
+## 最新功能（v3.2）
+
+### 信息搜集渠道（11 个）
+ARIS 现在可以搜到审稿中的论文（比 arXiv 早 3-6 个月）和推上刚发布的研究：
+- **OpenReview**：NeurIPS/ICML/ICLR 审稿中的投稿
+- **Twitter/X**（via Nitter，免费）：LLM/CV/RL/AI 领域研究者发布的 pre-arXiv 成果
+- **HF Daily Papers**：HuggingFace 社区每日精选，比 arXiv 快 1-3 天
+- **arXiv、Semantic Scholar、DeepXiv、OpenAlex、Exa、Gemini**：全学科覆盖
+
+### 科研方法论整合
+- **来自 Supervisor-Skills（港科大）**：9 条写作标准、10 项绘图清单、5 维 Idea 框架
+- **来自 scientific-agent-skills（K-Dense）**：Fisher 实验设计三原则、统计功效分析
+- **来自知乎研0教程**：3 种 Idea 模板（跨域迁移/挑战默认/系统对比）、5 问预检清单、失败复盘协议
+- 实验前必须回答"改什么/为什么/最小实验/即使失败学到什么"——不答完不准写代码
+
+### 工程增强
+- **wandb 集成**：`wandb_api.txt` 放项目根目录，自动读取。不存在就跳过。gitignored
+- **智能 GPU 调度**：每次训练前自动 `nvidia-smi`，从高 index GPU 往下找空闲的
+- **代码可复现**：`src/` 统一仓库 + `reproduce.sh` + `pyproject.toml` + `.gitignore` + `README.md`
+
 ## 未来方向
 
 - **多 MCP 审稿**：接入 Gemini、Qwen 等更多模型做独立审稿
 - **Meta-optimize**：记录每次管线运行的 EXPERIMENT_HISTORY.tsv，学习哪些策略有效
-- **更好的远程 GPU 调度**：自动检测空闲 GPU、排队、断点续训
 - **向量数据库 RAG**：当前是关键词检索，升级到 embedding-based 语义检索
 
 ---
